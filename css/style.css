@@ -52,20 +52,32 @@ Master Stylesheet - project/css/style.css
 
 /* Dark Mode Variables */
 body.dark-mode {
-    --bg-primary: #090D16;
-    --bg-secondary: #111827;
-    --text-primary: #F9FAFB;
-    --text-secondary: #9CA3AF;
-    --text-muted: #6B7280;
+    /* Glowing vibrant colors in Dark Mode */
+    --primary: #6366F1; /* Radiant Indigo */
+    --primary-rgb: 99, 102, 241;
+    --accent: #06B6D4; /* Luminous Cyan */
+    --accent-rgb: 6, 182, 212;
+    --warning: #F59E0B; /* Vibrant Amber */
+    --warning-rgb: 245, 158, 11;
+    --danger: #F43F5E; /* Vibrant Rose */
+    --danger-rgb: 244, 63, 94;
+
+    /* Sleek space-indigo backdrop */
+    --bg-primary: #0A0D1A; /* Deep space dark blue */
+    --bg-secondary: #12182D; /* Indigo-slate secondary card color */
+    --text-primary: #F3F4F6; /* High readability off-white */
+    --text-secondary: #94A3B8; /* Slate gray */
+    --text-muted: #64748B; /* Muted slate */
     
-    --glass-bg: rgba(17, 24, 39, 0.65);
-    --glass-border: rgba(255, 255, 255, 0.05);
-    --border-color: rgba(255, 255, 255, 0.07);
-    --border-hover: rgba(37, 99, 235, 0.3);
+    /* Glassmorphism with violet/indigo tinted reflections */
+    --glass-bg: rgba(18, 24, 45, 0.7);
+    --glass-border: rgba(99, 102, 241, 0.15); /* Subtle indigo highlight border */
+    --border-color: rgba(99, 102, 241, 0.12); 
+    --border-hover: rgba(99, 102, 241, 0.35); /* Neon purple hover glow */
     
-    --shadow-soft: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
-    --shadow-card: 0 20px 40px -15px rgba(0, 0, 0, 0.4);
-    --shadow-hover: 0 25px 50px -12px rgba(37, 99, 235, 0.2);
+    --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
+    --shadow-card: 0 20px 45px -15px rgba(0, 0, 0, 0.6);
+    --shadow-hover: 0 25px 50px -12px rgba(99, 102, 241, 0.2);
 }
 
 /* --- BASE STYLES --- */
@@ -347,6 +359,67 @@ body.dark-mode .search-bar {
     width: 20px;
     height: 20px;
     fill: currentColor;
+}
+
+/* --- THEME TOGGLE SWITCH --- */
+.theme-toggle-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    cursor: pointer;
+    padding: 0.25rem 0.5rem;
+    border-radius: 50px;
+    transition: var(--transition);
+    user-select: none;
+}
+
+.theme-toggle-wrapper:hover {
+    background: var(--border-color);
+}
+
+.toggle-icon {
+    width: 16px;
+    height: 16px;
+    fill: var(--text-muted);
+    transition: var(--transition);
+    flex-shrink: 0;
+}
+
+.theme-toggle-track {
+    position: relative;
+    width: 42px;
+    height: 24px;
+    background: var(--border-color);
+    border-radius: 50px;
+    border: 1px solid var(--border-color);
+    transition: background 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
+    flex-shrink: 0;
+}
+
+.theme-toggle-track.active {
+    background: linear-gradient(135deg, var(--primary), #4F46E5);
+    border-color: var(--primary);
+    box-shadow: 0 0 12px rgba(var(--primary-rgb), 0.4);
+}
+
+.theme-toggle-thumb {
+    position: absolute;
+    top: 3px;
+    left: 3px;
+    width: 16px;
+    height: 16px;
+    background: #ffffff;
+    border-radius: 50%;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.25);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.theme-toggle-track.active .theme-toggle-thumb {
+    transform: translateX(18px);
+}
+
+.theme-toggle-wrapper:hover .toggle-icon {
+    fill: var(--primary);
 }
 
 .badge-dot {

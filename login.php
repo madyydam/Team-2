@@ -26,9 +26,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } else {
         // Mock credentials dictionary
         $mock_users = [
-            'admin' => ['name' => 'Dr. Balaji Chaugule', 'role' => 'Administrator', 'password' => 'admin123'],
-            'hod' => ['name' => 'Prof. Grace Hopper', 'role' => 'Head of Department', 'password' => 'hod123'],
-            'faculty' => ['name' => 'Dr. Grace Hopper', 'role' => 'Faculty Member', 'password' => 'faculty123']
+            'admin' => ['name' => 'Prof. Balaji A. Chaugule', 'role' => 'Administrator', 'password' => 'admin123'],
+            'hod' => ['name' => 'Prof. Balaji A. Chaugule', 'role' => 'Head of Department', 'password' => 'hod123'],
+            'faculty' => ['name' => 'Dr. Neeti Rathore', 'role' => 'Faculty Member', 'password' => 'faculty123']
         ];
         
         $user_key = strtolower($username);

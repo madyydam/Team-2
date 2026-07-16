@@ -13,27 +13,254 @@ if (session_status() == PHP_SESSION_NONE) {
 // ---------------------------------------------------------
 // 1. DYNAMIC MOCK DATA INITIALIZATION
 // ---------------------------------------------------------
-if (!isset($_SESSION['academic_db'])) {
+define('DB_VERSION', '5.0'); // Bump this to force a session refresh after data updates
+
+if (!isset($_SESSION['academic_db']) || ($_SESSION['db_version'] ?? '') !== DB_VERSION) {
+    session_unset();
+    $_SESSION['db_version'] = DB_VERSION;
+
     $_SESSION['academic_db'] = [
         'semester_active' => false,
         'departments' => ['Computer Science', 'Information Technology', 'Electronics & Comm.', 'Mechanical Eng.'],
         
         'faculty' => [
-            ['id' => 1, 'name' => 'Dr. Balaji Chaugule', 'email' => 'chaugule.b@team2.edu', 'department' => 'Computer Science', 'workload' => 16, 'status' => 'Active'],
-            ['id' => 2, 'name' => 'Prof. Alan Turing', 'email' => 'turing.a@eduflow.edu', 'department' => 'Computer Science', 'workload' => 12, 'status' => 'Active'],
-            ['id' => 3, 'name' => 'Dr. Grace Hopper', 'email' => 'hopper.g@eduflow.edu', 'department' => 'Information Technology', 'workload' => 14, 'status' => 'Active'],
-            ['id' => 4, 'name' => 'Prof. Ada Lovelace', 'email' => 'lovelace.a@eduflow.edu', 'department' => 'Information Technology', 'workload' => 18, 'status' => 'On Leave'],
-            ['id' => 5, 'name' => 'Dr. Nikola Tesla', 'email' => 'tesla.n@eduflow.edu', 'department' => 'Electronics & Comm.', 'workload' => 8, 'status' => 'Active'],
+            [
+                'id' => 1,
+                'name' => 'Prof. Balaji A. Chaugule',
+                'email' => 'balaji.chaugule@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 12,
+                'status' => 'Active',
+                'qualification' => 'M.E. (Computer Engineering)',
+                'designation' => 'Head of Information Technology',
+                'experience' => 'Teaching - 12 Years',
+                'expertise' => 'Cloud Computing, Mobile Security, Parallel Computing, Artificial Intelligence',
+                'photo' => 'img/balaji_chaugule.jpg'
+            ],
+            [
+                'id' => 2,
+                'name' => 'Dr. Neeti Rathore',
+                'email' => 'neeti.rathore@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 16,
+                'status' => 'Active',
+                'qualification' => 'Ph.D.',
+                'designation' => 'Assistant Professor',
+                'experience' => 'Teaching - 20 Years',
+                'expertise' => 'Organic and Drug Chemistry, Education, Environmental Sciences',
+                'photo' => 'img/neeti_rathore.jpg'
+            ],
+            [
+                'id' => 3,
+                'name' => 'Dr. Hemant R. Suryavanshi',
+                'email' => 'hemant.suryavanshi@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 14,
+                'status' => 'Active',
+                'qualification' => 'Ph.D.',
+                'designation' => 'Assistant Professor',
+                'experience' => 'Teaching - 4 Years, Industrial - 18 Years',
+                'expertise' => 'Research',
+                'photo' => 'img/hemant_suryavanshi.jpg'
+            ],
+            [
+                'id' => 4,
+                'name' => 'Prof. Ashwini M. Agarwal',
+                'email' => 'ashwini.agarwal@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 16,
+                'status' => 'Active',
+                'qualification' => 'M.E. / M.Tech',
+                'designation' => 'Assistant Professor',
+                'experience' => 'Industrial - 3 Years',
+                'expertise' => 'Data Analyst, Data Science',
+                'photo' => 'img/ashwini_agarwal.jpg'
+            ],
+            [
+                'id' => 7,
+                'name' => 'Prof. Rohini R. Dhere',
+                'email' => 'rohini.dhere@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 12,
+                'status' => 'Active',
+                'qualification' => 'M.Sc.',
+                'designation' => 'Assistant Professor',
+                'experience' => 'Industrial - 2.3 Years',
+                'expertise' => 'Mathematics',
+                'photo' => 'img/rohini_dhere.jpg'
+            ],
+            [
+                'id' => 8,
+                'name' => 'Prof. Komal P. Rathod',
+                'email' => 'komal.rathod@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 14,
+                'status' => 'Active',
+                'qualification' => 'M.E. / M.Tech',
+                'experience' => '-',
+                'expertise' => 'Computer Engineering',
+                'photo' => 'img/komal_rathod.jpg'
+            ],
+            [
+                'id' => 9,
+                'name' => 'Prof. Vishal H. Bafana',
+                'email' => 'vishal.bafana@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 16,
+                'status' => 'Active',
+                'qualification' => 'B.E. / B.Tech',
+                'designation' => 'Teaching Assistant',
+                'experience' => 'Teaching - 8 Years',
+                'expertise' => 'Advance Web & Mobile Development, Influential Communication',
+                'photo' => 'img/vishal_bafana.jpg'
+            ],
+            [
+                'id' => 10,
+                'name' => 'Prof. Karan U. Jadhav',
+                'email' => 'karanumakant.jadhav@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 12,
+                'status' => 'Active',
+                'qualification' => 'M.Sc.',
+                'designation' => 'Teaching Assistant',
+                'experience' => 'Teaching - 0.3 Years, Industrial - 0.6 Years',
+                'expertise' => 'Industrial Mathematics with Computer Application',
+                'photo' => ''
+            ],
+            [
+                'id' => 11,
+                'name' => 'Prof. Sumesh S. Shinde',
+                'email' => 'sumesh.shinde@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 18,
+                'status' => 'Active',
+                'qualification' => 'B.E. / B.Tech',
+                'designation' => 'Teaching Assistant',
+                'experience' => 'Teaching - 0.3 Years, Industrial - 0.6 Years',
+                'expertise' => 'Full Stack Developer, Java, Html, Css, Js',
+                'photo' => 'img/sumesh_shinde.jpg'
+            ],
+            [
+                'id' => 12,
+                'name' => 'Prof. Shubhangi Wadibhasme',
+                'email' => 'shubhangi.wadibhasme@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 14,
+                'status' => 'Active',
+                'qualification' => 'B.E. / B.Tech',
+                'designation' => 'Teaching Assistant',
+                'experience' => '-',
+                'expertise' => 'Java Developer',
+                'photo' => ''
+            ],
+            [
+                'id' => 13,
+                'name' => 'Prof. Shruti S. Ghotane',
+                'email' => 'shruti.ghotane@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 16,
+                'status' => 'Active',
+                'qualification' => 'B.E. / B.Tech',
+                'designation' => 'Teaching Assistant',
+                'experience' => '-',
+                'expertise' => 'Full Stack Fullstack',
+                'photo' => ''
+            ],
+            [
+                'id' => 14,
+                'name' => 'Prof. Prachi D. Gole',
+                'email' => 'prachi.gole@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 14,
+                'status' => 'Active',
+                'qualification' => 'B.E. / B.Tech',
+                'designation' => 'Teaching Assistant',
+                'experience' => '-',
+                'expertise' => 'Computer Engineering',
+                'photo' => ''
+            ],
+            [
+                'id' => 15,
+                'name' => 'Mr. Tejas U. Jagtap',
+                'email' => 'tejas.jagtap@zealeducation.com',
+                'department' => 'Information Technology',
+                'workload' => 8,
+                'status' => 'Active',
+                'qualification' => 'Diploma / BCA',
+                'designation' => 'Lab Assistant',
+                'experience' => '1 Year',
+                'expertise' => 'Technical Support and Desktop Support Engineer and Software and Automation Tester',
+                'photo' => ''
+            ]
         ],
         
         'students' => [
-            ['id' => 101, 'name' => 'Alice Smith', 'roll_no' => 'CS-2026-01', 'email' => 'alice@student.edu', 'department' => 'Computer Science', 'semester' => '5th', 'attendance_pct' => 92],
-            ['id' => 102, 'name' => 'Bob Johnson', 'roll_no' => 'CS-2026-02', 'email' => 'bob@student.edu', 'department' => 'Computer Science', 'semester' => '5th', 'attendance_pct' => 68], // Warning
-            ['id' => 103, 'name' => 'Charlie Brown', 'roll_no' => 'CS-2026-03', 'email' => 'charlie@student.edu', 'department' => 'Computer Science', 'semester' => '5th', 'attendance_pct' => 84],
-            ['id' => 104, 'name' => 'Diana Prince', 'roll_no' => 'IT-2026-01', 'email' => 'diana@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 95],
-            ['id' => 105, 'name' => 'Ethan Hunt', 'roll_no' => 'IT-2026-02', 'email' => 'ethan@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 61], // Warning
-            ['id' => 106, 'name' => 'Fiona Gallagher', 'roll_no' => 'EC-2026-01', 'email' => 'fiona@student.edu', 'department' => 'Electronics & Comm.', 'semester' => '5th', 'attendance_pct' => 88],
-            ['id' => 107, 'name' => 'George Clark', 'roll_no' => 'EC-2026-02', 'email' => 'george@student.edu', 'department' => 'Electronics & Comm.', 'semester' => '5th', 'attendance_pct' => 71], // Warning
+            ['id' => 101, 'name' => 'ADE ISHWARI SHAMRAO', 'roll_no' => 'IT1101', 'email' => 'it1101.ishwari@student.edu', 'department' => 'Information Technology', 'semester' => '1st', 'attendance_pct' => 82],
+            ['id' => 109, 'name' => 'BADAK ROHIT ASHOK', 'roll_no' => 'IT1102', 'email' => 'it1102.rohit@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 78],
+            ['id' => 110, 'name' => 'BANKAR PRERANA SANDIP', 'roll_no' => 'IT1103', 'email' => 'it1103.prerana@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 91],
+            ['id' => 111, 'name' => 'BARGAJE GAYATRI SANTOSH', 'roll_no' => 'IT1104', 'email' => 'it1104.gayatri@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 64],
+            ['id' => 112, 'name' => 'BHAVSAR SOHAM ABHAY', 'roll_no' => 'IT1105', 'email' => 'it1105.soham@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 88],
+            ['id' => 113, 'name' => 'BORKAR AYUSH RAMBHAU', 'roll_no' => 'IT1106', 'email' => 'it1106.ayush@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 73],
+            ['id' => 114, 'name' => 'CHAITANYA JYOTIRAM BHOSALE', 'roll_no' => 'IT1107', 'email' => 'it1107.chaitanya@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 95],
+            ['id' => 115, 'name' => 'CHOLE PRANAV SHARAD', 'roll_no' => 'IT1108', 'email' => 'it1108.pranav@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 80],
+            ['id' => 116, 'name' => 'DALVE PRUTHVIRAJ AMAR', 'roll_no' => 'IT1109', 'email' => 'it1109.pruthviraj@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 83],
+            ['id' => 117, 'name' => 'DAVHALE SUMIT KISHOR', 'roll_no' => 'IT1110', 'email' => 'it1110.sumit@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 69],
+            ['id' => 118, 'name' => 'DHADVE MADHUR SANJAY', 'roll_no' => 'IT1111', 'email' => 'it1111.madhur@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 90],
+            ['id' => 119, 'name' => 'DIVY ANIL KOKATE', 'roll_no' => 'IT1112', 'email' => 'it1112.divy@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 75],
+            ['id' => 120, 'name' => 'DIXIT SHIVAMSINGH NARENDRASINGH', 'roll_no' => 'IT1113', 'email' => 'it1113.shivamsingh@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 87],
+            ['id' => 121, 'name' => 'DOLASE PRANAV PRAVIN', 'roll_no' => 'IT1114', 'email' => 'it1114.pranav@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 81],
+            ['id' => 122, 'name' => 'GADAKH RISHI ASHOK', 'roll_no' => 'IT1115', 'email' => 'it1115.rishi@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 76],
+            ['id' => 123, 'name' => 'GARJE SUJIT ARUN', 'roll_no' => 'IT1116', 'email' => 'it1116.sujit@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 62],
+            ['id' => 124, 'name' => 'GAURAV RAJENDRA NANVARE', 'roll_no' => 'IT1117', 'email' => 'it1117.gaurav@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 84],
+            ['id' => 125, 'name' => 'GHARAT SWARA SANTOSH', 'roll_no' => 'IT1118', 'email' => 'it1118.swara@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 92],
+            ['id' => 126, 'name' => 'GHULE ARJUN GAJANAN', 'roll_no' => 'IT1119', 'email' => 'it1119.arjun@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 89],
+            ['id' => 127, 'name' => 'GODAMBE SWARAJ VISHNU', 'roll_no' => 'IT1120', 'email' => 'it1120.swaraj@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 70],
+            ['id' => 128, 'name' => 'GOUR YUVRAJSINHA RAVINDRA', 'roll_no' => 'IT1121', 'email' => 'it1121.yuvrajsinha@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 86],
+            ['id' => 129, 'name' => 'INGLE PRUTHVIRAJ PRABHU', 'roll_no' => 'IT1122', 'email' => 'it1122.pruthviraj@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 93],
+            ['id' => 130, 'name' => 'KADAM PRANAV PREMNATH', 'roll_no' => 'IT1123', 'email' => 'it1123.pranav@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 79],
+            ['id' => 131, 'name' => 'KALAMKAR RASIKA SUHAS', 'roll_no' => 'IT1124', 'email' => 'it1124.rasika@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 94],
+            ['id' => 132, 'name' => 'KANHAIYA KISHOR MARATHE', 'roll_no' => 'IT1125', 'email' => 'it1125.kanhaiya@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 82],
+            ['id' => 133, 'name' => 'KAWADE AYUSHI KIRAN', 'roll_no' => 'IT1126', 'email' => 'it1126.ayushi@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 88],
+            ['id' => 134, 'name' => 'KHEDKAR SURAJ UDDHAV', 'roll_no' => 'IT1127', 'email' => 'it1127.suraj@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 74],
+            ['id' => 135, 'name' => 'KHODADE SAMRUDDHI SHAILESH', 'roll_no' => 'IT1128', 'email' => 'it1128.samruddhi@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 91],
+            ['id' => 136, 'name' => 'KHODE RIDDHI KRUSHNA', 'roll_no' => 'IT1129', 'email' => 'it1129.riddhi@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 85],
+            ['id' => 137, 'name' => 'LAHAMGE SHUBHAM PRAVIN', 'roll_no' => 'IT1130', 'email' => 'it1130.shubham@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 67],
+            ['id' => 138, 'name' => 'MACHAREKAR ARNAV RAJAN', 'roll_no' => 'IT1131', 'email' => 'it1131.arnav@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 83],
+            ['id' => 139, 'name' => 'MAHURE ADITYA SUNIL', 'roll_no' => 'IT1132', 'email' => 'it1132.aditya@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 80],
+            ['id' => 140, 'name' => 'MOMIN BUSHARA MEHMUD', 'roll_no' => 'IT1133', 'email' => 'it1133.bushara@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 96],
+            ['id' => 141, 'name' => 'OROKAR MAHESHWARI SANDIP', 'roll_no' => 'IT1134', 'email' => 'it1134.maheshwari@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 78],
+            ['id' => 142, 'name' => 'PADWAL SURAJ NARESH', 'roll_no' => 'IT1135', 'email' => 'it1135.suraj@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 72],
+            ['id' => 143, 'name' => 'PANCHAL ROHAN RAMESH', 'roll_no' => 'IT1136', 'email' => 'it1136.rohan@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 89],
+            ['id' => 144, 'name' => 'PATIL ROHINI GAUDAPPA', 'roll_no' => 'IT1137', 'email' => 'it1137.rohini@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 92],
+            ['id' => 145, 'name' => 'PAWAR KARAN BABURAO', 'roll_no' => 'IT1138', 'email' => 'it1138.karan@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 81],
+            ['id' => 146, 'name' => 'PAWAR SATYAM HIRAMAN', 'roll_no' => 'IT1139', 'email' => 'it1139.satyam@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 63],
+            ['id' => 147, 'name' => 'PAYGUDE SHUBHANGI VIJAY', 'roll_no' => 'IT1140', 'email' => 'it1140.shubhangi@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 87],
+            ['id' => 148, 'name' => 'POTDAR TUSHAR VIVEK', 'roll_no' => 'IT1141', 'email' => 'it1141.tushar@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 85],
+            ['id' => 149, 'name' => 'POTRAJE RUCHIRA RAVI', 'roll_no' => 'IT1142', 'email' => 'it1142.ruchira@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 90],
+            ['id' => 150, 'name' => 'PRASAD VIVEK KULKARNI', 'roll_no' => 'IT1143', 'email' => 'it1143.vivek@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 77],
+            ['id' => 151, 'name' => 'RAMGUDE PAVAN AMAR', 'roll_no' => 'IT1144', 'email' => 'it1144.pavan@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 84],
+            ['id' => 152, 'name' => 'RATHOD DISHA AVINASH', 'roll_no' => 'IT1145', 'email' => 'it1145.disha@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 94],
+            ['id' => 153, 'name' => 'RATHOD RAJ NEPAL', 'roll_no' => 'IT1146', 'email' => 'it1146.raj@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 80],
+            ['id' => 154, 'name' => 'RUTUJA SANJIVKUMAR PANCHAL', 'roll_no' => 'IT1147', 'email' => 'it1147.rutuja@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 86],
+            ['id' => 155, 'name' => 'SADICHHA KALIDAS PAWAR', 'roll_no' => 'IT1148', 'email' => 'it1148.sadichha@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 68],
+            ['id' => 156, 'name' => 'SATPUTE ADITYA PANDHARINATH', 'roll_no' => 'IT1149', 'email' => 'it1149.aditya@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 82],
+            ['id' => 157, 'name' => 'SHEVARE AJAY VINOD', 'roll_no' => 'IT1150', 'email' => 'it1150.ajay@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 75],
+            ['id' => 158, 'name' => 'SHINDE TEJASWINI PRAKASH', 'roll_no' => 'IT1151', 'email' => 'it1151.tejaswini@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 91],
+            ['id' => 159, 'name' => 'SHRAWANI KRISHNA ROKDE', 'roll_no' => 'IT1152', 'email' => 'it1152.shrawani@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 88],
+            ['id' => 160, 'name' => 'SHRINIDHI MADHAV SHINDE', 'roll_no' => 'IT1153', 'email' => 'it1153.shrinidhi@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 83],
+            ['id' => 161, 'name' => 'SHUBHAM MACHHINDRA SURVASE', 'roll_no' => 'IT1154', 'email' => 'it1154.shubham@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 79],
+            ['id' => 162, 'name' => 'SIDDHESH VINODKUMAR DHAVALE', 'roll_no' => 'IT1155', 'email' => 'it1155.siddhesh@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 71],
+            ['id' => 163, 'name' => 'SINGH NAVYA RAJKUMAR', 'roll_no' => 'IT1156', 'email' => 'it1156.navya@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 95],
+            ['id' => 164, 'name' => 'SOLANKAR SOHAM SIDDHESHWAR', 'roll_no' => 'IT1157', 'email' => 'it1157.soham@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 80],
+            ['id' => 165, 'name' => 'SUCHITA RAMCHANDRA SIHORE', 'roll_no' => 'IT1159', 'email' => 'it1159.suchita@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 84],
+            ['id' => 166, 'name' => 'SURVE VALLABH KSHITIJ', 'roll_no' => 'IT1160', 'email' => 'it1160.vallabh@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 89],
+            ['id' => 167, 'name' => 'SWARANJALI OMPRAKASH GHODKE', 'roll_no' => 'IT1161', 'email' => 'it1161.swaranjali@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 92],
+            ['id' => 168, 'name' => 'SWAROOP SATISH PARDESHI', 'roll_no' => 'IT1162', 'email' => 'it1162.swaroop@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 76],
+            ['id' => 169, 'name' => 'TANTAK PARTH NITIN', 'roll_no' => 'IT1163', 'email' => 'it1163.parth@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 65],
+            ['id' => 170, 'name' => 'UGLE MAYURI MAROTI', 'roll_no' => 'IT1164', 'email' => 'it1164.mayuri@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 87],
+            ['id' => 171, 'name' => 'UNDALE SOHAM SHASHIKANT', 'roll_no' => 'IT1165', 'email' => 'it1165.soham@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 90],
+            ['id' => 172, 'name' => 'VAISHNAVI AVINASH KANDHARE', 'roll_no' => 'IT1166', 'email' => 'it1166.vaishnavi@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 82],
+            ['id' => 173, 'name' => 'WAGHMALE SRUSHTI SANTOSH', 'roll_no' => 'IT1167', 'email' => 'it1167.srushti@student.edu', 'department' => 'Information Technology', 'semester' => '5th', 'attendance_pct' => 88]
         ],
         
         'calendar' => [
@@ -44,19 +271,19 @@ if (!isset($_SESSION['academic_db'])) {
         ],
         
         'subjects' => [
-            ['code' => 'CS501', 'name' => 'Artificial Intelligence', 'credits' => 4, 'semester' => '5th', 'department' => 'Computer Science'],
+            ['code' => 'CS501', 'name' => 'Artificial Intelligence', 'credits' => 4, 'semester' => '5th', 'department' => 'Information Technology'],
             ['code' => 'CS502', 'name' => 'Database Management Systems', 'credits' => 3, 'semester' => '5th', 'department' => 'Computer Science'],
-            ['code' => 'CS503', 'name' => 'Web Application Development', 'credits' => 4, 'semester' => '5th', 'department' => 'Computer Science'],
+            ['code' => 'CS503', 'name' => 'Web Application Development', 'credits' => 4, 'semester' => '5th', 'department' => 'Information Technology'],
             ['code' => 'IT501', 'name' => 'Software Engineering', 'credits' => 3, 'semester' => '5th', 'department' => 'Information Technology'],
             ['code' => 'EC501', 'name' => 'Microprocessors & Controllers', 'credits' => 4, 'semester' => '5th', 'department' => 'Electronics & Comm.'],
         ],
 
         'timetable' => [
-            ['id' => 1, 'subject' => 'CS501', 'faculty_id' => 1, 'room' => 'Room 301', 'time_slot' => '09:00 AM - 10:00 AM', 'day_of_week' => 'Monday', 'department' => 'Computer Science', 'semester' => '5th'],
+            ['id' => 1, 'subject' => 'CS501', 'faculty_id' => 1, 'room' => 'Room 301', 'time_slot' => '09:00 AM - 10:00 AM', 'day_of_week' => 'Monday', 'department' => 'Information Technology', 'semester' => '5th'],
             ['id' => 2, 'subject' => 'CS502', 'faculty_id' => 2, 'room' => 'Room 302', 'time_slot' => '10:00 AM - 11:00 AM', 'day_of_week' => 'Monday', 'department' => 'Computer Science', 'semester' => '5th'],
-            ['id' => 3, 'subject' => 'CS503', 'faculty_id' => 3, 'room' => 'Programming Lab 1', 'time_slot' => '11:15 AM - 01:15 PM', 'day_of_week' => 'Tuesday', 'department' => 'Computer Science', 'semester' => '5th'],
-            ['id' => 4, 'subject' => 'IT501', 'faculty_id' => 3, 'room' => 'Room 303', 'time_slot' => '02:00 PM - 03:00 PM', 'day_of_week' => 'Wednesday', 'department' => 'Information Technology', 'semester' => '5th'],
-            ['id' => 5, 'subject' => 'EC501', 'faculty_id' => 5, 'room' => 'Room 304', 'time_slot' => '09:00 AM - 10:00 AM', 'day_of_week' => 'Thursday', 'department' => 'Electronics & Comm.', 'semester' => '5th'],
+            ['id' => 3, 'subject' => 'CS503', 'faculty_id' => 11, 'room' => 'Programming Lab 1', 'time_slot' => '11:15 AM - 01:15 PM', 'day_of_week' => 'Tuesday', 'department' => 'Information Technology', 'semester' => '5th'],
+            ['id' => 4, 'subject' => 'IT501', 'faculty_id' => 2, 'room' => 'Room 303', 'time_slot' => '02:00 PM - 03:00 PM', 'day_of_week' => 'Wednesday', 'department' => 'Information Technology', 'semester' => '1st'],
+            ['id' => 5, 'subject' => 'EC501', 'faculty_id' => 6, 'room' => 'Room 304', 'time_slot' => '09:00 AM - 10:00 AM', 'day_of_week' => 'Thursday', 'department' => 'Information Technology', 'semester' => '1st'],
         ],
         
         'labs' => [
@@ -68,7 +295,7 @@ if (!isset($_SESSION['academic_db'])) {
         
         'issues' => [
             ['id' => 1, 'title' => 'Projector Not Working', 'room' => 'Room 301', 'type' => 'Projector', 'status' => 'Pending', 'reported_by' => 'Dr. Balaji Chaugule', 'date' => '2026-07-15'],
-            ['id' => 2, 'title' => 'Slow Fiber Network Connectivity', 'room' => 'Hardware Lab 1', 'type' => 'Internet', 'status' => 'In Progress', 'reported_by' => 'Dr. Nikola Tesla', 'date' => '2026-07-14'],
+            ['id' => 2, 'title' => 'Slow Fiber Network Connectivity', 'room' => 'Hardware Lab 1', 'type' => 'Internet', 'status' => 'In Progress', 'reported_by' => 'Dr. Hemant R. Suryavanshi', 'date' => '2026-07-14'],
         ],
         
         'announcements' => [
@@ -129,17 +356,20 @@ $user_avatar = strtoupper(substr($user_name, 0, 1));
                     </div>
                     
                     <div class="nav-right">
-                        <!-- Dark Mode Toggle Button -->
-                        <button class="nav-icon-btn" id="themeToggleBtn" onclick="toggleTheme()" aria-label="Toggle Dark Mode">
-                            <!-- Sun icon -->
-                            <svg viewBox="0 0 24 24" id="themeSunIcon" style="display: <?= $theme_mode === 'dark' ? 'block' : 'none' ?>;">
-                                <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41zm-12.37 12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41z"/>
-                            </svg>
+                        <!-- Dark Mode Toggle Switch -->
+                        <div class="theme-toggle-wrapper" onclick="toggleTheme()" title="Toggle Dark Mode" aria-label="Toggle Dark Mode" role="button" id="themeToggleBtn">
                             <!-- Moon icon -->
-                            <svg viewBox="0 0 24 24" id="themeMoonIcon" style="display: <?= $theme_mode === 'dark' ? 'none' : 'block' ?>;">
+                            <svg class="toggle-icon toggle-moon" viewBox="0 0 24 24">
                                 <path d="M12.3 2.03c-1.3-.1-2.6.2-3.8.8-4.4 2.1-6.7 7-5.3 11.7 1.3 4.2 5.1 6.9 9.4 6.9 2.5 0 4.9-1 6.7-2.8 3.5-3.5 3.9-9.1 1-13-1.1-1.5-2.7-2.6-4.5-3.1-.5-.1-1 .2-1 .7s.3.9.8 1.1c4.5 1.5 6.6 6.5 4.6 10.8-1.9 4-6.6 5.8-10.6 3.9-3.4-1.6-5.3-5.4-4.5-9.1.7-3.2 3.4-5.6 6.7-5.9.5 0 .9-.4.9-.9s-.3-.9-.9-.9c-.1 0-.2 0-.3.1z"/>
                             </svg>
-                        </button>
+                            <div class="theme-toggle-track <?= $theme_mode === 'dark' ? 'active' : '' ?>" id="themeToggleTrack">
+                                <div class="theme-toggle-thumb" id="themeToggleThumb"></div>
+                            </div>
+                            <!-- Sun icon -->
+                            <svg class="toggle-icon toggle-sun" viewBox="0 0 24 24">
+                                <path d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zM2 13h2c.55 0 1-.45 1-1s-.45-1-1-1H2c-.55 0-1 .45-1 1s.45 1 1 1zm18 0h2c.55 0 1-.45 1-1s-.45-1-1-1h-2c-.55 0-1 .45-1 1s.45 1 1 1zM11 2v2c0 .55.45 1 1 1s1-.45 1-1V2c0-.55-.45-1-1-1s-1 .45-1 1zm0 18v2c0 .55.45 1 1 1s1-.45 1-1v-2c0-.55-.45-1-1-1s-1 .45-1 1zM5.99 4.58c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41L5.99 4.58zm12.37 12.37c-.39-.39-1.03-.39-1.41 0s-.39 1.03 0 1.41l1.06 1.06c.39.39 1.03.39 1.41 0s.39-1.03 0-1.41l-1.06-1.06zm1.06-12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41zm-12.37 12.37c-.39-.39-1.03-.39-1.41 0l-1.06 1.06c-.39.39-.39 1.03 0 1.41s1.03.39 1.41 0l1.06-1.06c.39-.39.39-1.03 0-1.41z"/>
+                            </svg>
+                        </div>
                         
                         <!-- Notifications Center Trigger -->
                         <button class="nav-icon-btn" onclick="toggleDropdown('notificationMenu')" aria-label="Notifications">

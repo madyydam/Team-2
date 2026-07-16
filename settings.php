@@ -21,11 +21,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $_SESSION['user_role'] = $role;
         // Adjust mock name based on role
         if ($role === 'Administrator') {
-            $_SESSION['user_name'] = 'Dr. Balaji Chaugule';
+            $_SESSION['user_name'] = 'Prof. Balaji A. Chaugule';
         } elseif ($role === 'Head of Department') {
-            $_SESSION['user_name'] = 'Prof. Grace Hopper';
+            $_SESSION['user_name'] = 'Prof. Balaji A. Chaugule';
         } else {
-            $_SESSION['user_name'] = 'Dr. Grace Hopper';
+            $_SESSION['user_name'] = 'Dr. Neeti Rathore';
         }
         $action_toast = "showToast('View role altered: Operating as $role now.', 'info');";
     }

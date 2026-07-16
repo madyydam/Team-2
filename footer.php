@@ -80,23 +80,21 @@ $current_page = basename($_SERVER['PHP_SELF']);
     // 3. Dark/Light Mode Theme Toggle
     function toggleTheme() {
         const body = document.body;
-        const sunIcon = document.getElementById('themeSunIcon');
-        const moonIcon = document.getElementById('themeMoonIcon');
+        const track = document.getElementById('themeToggleTrack');
         
         body.classList.toggle('dark-mode');
         
         const isDark = body.classList.contains('dark-mode');
         
+        // Toggle switch visual
+        if (track) track.classList.toggle('active', isDark);
+        
         // Save preferences to cookie for PHP persistence (expires in 30 days)
         document.cookie = `theme_mode=${isDark ? 'dark' : 'light'}; max-age=${30 * 24 * 60 * 60}; path=/`;
         
         if (isDark) {
-            sunIcon.style.display = 'block';
-            moonIcon.style.display = 'none';
             showToast("Dark mode activated", "info");
         } else {
-            sunIcon.style.display = 'none';
-            moonIcon.style.display = 'block';
             showToast("Light mode activated", "info");
         }
     }

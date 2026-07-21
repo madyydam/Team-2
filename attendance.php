@@ -10,14 +10,14 @@ include 'header.php';
 
 $db = &$_SESSION['academic_db'];
 
-// Initialize session state for class statuses if not set
-if (!isset($db['class_sessions'])) {
+// Initialize session state for class statuses if not set (or if using old demo faculty names)
+if (!isset($db['class_sessions']) || (isset($db['class_sessions'][1]['faculty']) && strpos($db['class_sessions'][1]['faculty'], 'Turing') !== false)) {
     $db['class_sessions'] = [
-        ['id' => 1, 'subject' => 'CS501', 'faculty' => 'Dr. Balaji Chaugule', 'room' => 'Room 301', 'time' => '09:00 AM - 10:00 AM', 'status' => 'Completed', 'reason' => ''],
-        ['id' => 2, 'subject' => 'CS502', 'faculty' => 'Prof. Alan Turing', 'room' => 'Room 302', 'time' => '10:00 AM - 11:00 AM', 'status' => 'Completed', 'reason' => ''],
-        ['id' => 3, 'subject' => 'CS503', 'faculty' => 'Dr. Grace Hopper', 'room' => 'Programming Lab 1', 'time' => '11:15 AM - 01:15 PM', 'status' => 'Pending', 'reason' => ''],
-        ['id' => 4, 'subject' => 'IT501', 'faculty' => 'Prof. Ada Lovelace', 'room' => 'Room 303', 'time' => '02:00 PM - 03:00 PM', 'status' => 'Cancelled', 'reason' => 'Faculty Leave'],
-        ['id' => 5, 'subject' => 'EC501', 'faculty' => 'Dr. Nikola Tesla', 'room' => 'Room 304', 'time' => '03:15 PM - 04:15 PM', 'status' => 'Pending', 'reason' => ''],
+        ['id' => 1, 'subject' => 'CS501', 'faculty' => 'Prof. Balaji A. Chaugule', 'room' => 'Room 301', 'time' => '09:00 AM - 10:00 AM', 'status' => 'Completed', 'reason' => ''],
+        ['id' => 2, 'subject' => 'CS502', 'faculty' => 'Dr. Neeti Rathore', 'room' => 'Room 302', 'time' => '10:00 AM - 11:00 AM', 'status' => 'Completed', 'reason' => ''],
+        ['id' => 3, 'subject' => 'CS503', 'faculty' => 'Prof. Sumesh S. Shinde', 'room' => 'Programming Lab 1', 'time' => '11:15 AM - 01:15 PM', 'status' => 'Pending', 'reason' => ''],
+        ['id' => 4, 'subject' => 'IT501', 'faculty' => 'Dr. Neeti Rathore', 'room' => 'Room 303', 'time' => '02:00 PM - 03:00 PM', 'status' => 'Cancelled', 'reason' => 'Faculty Leave'],
+        ['id' => 5, 'subject' => 'EC501', 'faculty' => 'Prof. Ashwini M. Agarwal', 'room' => 'Room 304', 'time' => '03:15 PM - 04:15 PM', 'status' => 'Pending', 'reason' => ''],
     ];
 }
 
@@ -54,7 +54,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($c['id'] === $class_id) {
                 $c['status'] = $new_status;
                 $c['reason'] = $reason;
-                $action_toast = "showToast('Class status updated to $new_status.', 'info');";
+                
+                // Sync status to timetable grid sessions
+                foreach ($db['timetable'] as &$t_item) {
+                    if ($t_item['subject'] === $c['subject']) {
+                        $t_item['status'] = $new_status;
+                    }
+                }
+                
+                $toast_type = ($new_status === 'Completed') ? 'success' : (($new_status === 'Cancelled') ? 'danger' : 'info');
+                $action_toast = "showToast('Session {$c['subject']} updated to $new_status! Timetable grid reflected.', '$toast_type');";
                 break;
             }
         }

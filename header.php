@@ -16,7 +16,20 @@ if (session_status() == PHP_SESSION_NONE) {
 define('DB_VERSION', '5.0'); // Bump this to force a session refresh after data updates
 
 if (!isset($_SESSION['academic_db']) || ($_SESSION['db_version'] ?? '') !== DB_VERSION) {
+    // Save login info before resetting DB data
+    $saved_user_id          = $_SESSION['user_id']          ?? null;
+    $saved_user_name        = $_SESSION['user_name']        ?? null;
+    $saved_user_role        = $_SESSION['user_role']        ?? null;
+    $saved_registered_users = $_SESSION['registered_users'] ?? [];
+
     session_unset();
+
+    // Restore login info so user doesn't get logged out
+    if ($saved_user_id)   $_SESSION['user_id']          = $saved_user_id;
+    if ($saved_user_name) $_SESSION['user_name']        = $saved_user_name;
+    if ($saved_user_role) $_SESSION['user_role']        = $saved_user_role;
+    $_SESSION['registered_users'] = $saved_registered_users;
+
     $_SESSION['db_version'] = DB_VERSION;
 
     $_SESSION['academic_db'] = [

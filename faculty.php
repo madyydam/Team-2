@@ -108,7 +108,64 @@ if (!empty($selected_dept)) {
         return $f['department'] === $selected_dept;
     });
 }
+
+// Separate HOD from staff members
+$hod_list = [];
+$staff_list = [];
+foreach ($filtered_faculty as $fac) {
+    if (stripos($fac['designation'] ?? '', 'head') !== false) {
+        $hod_list[] = $fac;
+    } else {
+        $staff_list[] = $fac;
+    }
+}
 ?>
+
+<style>
+/* Responsive tweaks for HOD card */
+@media (max-width: 768px) {
+    .hod-card-wrapper {
+        padding: 1.25rem !important;
+        gap: 1.5rem !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+    .hod-card-wrapper > div {
+        width: 100% !important;
+        min-width: 0 !important;
+    }
+    .hod-details-container {
+        align-items: center !important;
+    }
+    .hod-header-actions {
+        flex-direction: column !important;
+        align-items: center !important;
+        width: 100% !important;
+        gap: 0.75rem !important;
+        margin-top: 1rem !important;
+    }
+    .hod-header-actions form {
+        width: 100% !important;
+    }
+    .hod-header-actions button, .hod-header-actions a {
+        width: 100% !important;
+        justify-content: center !important;
+    }
+    .hod-details-grid {
+        grid-template-columns: 1fr !important;
+        text-align: center !important;
+        gap: 1rem !important;
+    }
+    .hod-details-grid a {
+        justify-content: center !important;
+    }
+    .hod-expertise-container {
+        display: flex !important;
+        justify-content: center !important;
+    }
+}
+</style>
 
 <div class="container-fluid">
     
@@ -144,6 +201,151 @@ if (!empty($selected_dept)) {
         </form>
     </div>
 
+    <?php if (!empty($hod_list)): ?>
+        <div style="margin-bottom: 2rem;">
+            <h3 class="glass-card-title" style="margin-bottom: 1rem;">Department Leadership</h3>
+            <?php foreach ($hod_list as $hod): ?>
+                <?php 
+                $workload_pct = min(100, round(($hod['workload'] / 20) * 100));
+                $workload_color = 'var(--accent)';
+                if ($hod['workload'] > 16) {
+                    $workload_color = 'var(--danger)';
+                } elseif ($hod['workload'] < 10) {
+                    $workload_color = 'var(--warning)';
+                }
+                ?>
+                <div class="glass-card hod-card-wrapper" style="padding: 2rem; border-left: 5px solid #f59e0b; display: flex; gap: 2.5rem; flex-wrap: wrap; position: relative;">
+                    <!-- HOD Photo / Avatar -->
+                    <div style="display: flex; flex-direction: column; align-items: center; gap: 1rem; flex-shrink: 0; min-width: 160px;">
+                        <?php if (!empty($hod['photo']) && file_exists(__DIR__ . '/' . $hod['photo'])): ?>
+                            <img src="<?= htmlspecialchars($hod['photo']) ?>" alt="<?= htmlspecialchars($hod['name']) ?>"
+                                 style="width: 150px; height: 150px; border-radius: 16px; object-fit: cover;
+                                        border: 4px solid #f59e0b;
+                                        box-shadow: 0 0 20px rgba(245, 158, 11, 0.25), 0 8px 24px rgba(0,0,0,0.15);
+                                        transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                        <?php else: ?>
+                            <?php 
+                            $initials = '';
+                            $words = explode(' ', $hod['name']);
+                            foreach ($words as $w) {
+                                if (!empty($w)) $initials .= strtoupper($w[0]);
+                            }
+                            $initials = substr($initials, 0, 2);
+                            ?>
+                            <div style="width: 150px; height: 150px; border-radius: 16px; background: linear-gradient(135deg, #f59e0b, #d97706); color: white;
+                                        display: flex; align-items: center; justify-content: center; font-weight: 800;
+                                        font-size: 2.5rem; letter-spacing: 0.05em;
+                                        border: 4px solid #f59e0b;
+                                        box-shadow: 0 0 20px rgba(245, 158, 11, 0.25), 0 8px 24px rgba(0,0,0,0.15);
+                                        transition: transform 0.2s ease;" onmouseover="this.style.transform='scale(1.05)'" onmouseout="this.style.transform='scale(1)'">
+                                <?= $initials ?>
+                            </div>
+                        <?php endif; ?>
+                        <span style="font-size: 0.75rem; background: #fef3c7; color: #92400e; border: 1px solid #f59e0b; padding: 0.25rem 0.75rem; border-radius: 99px; font-weight: 700; letter-spacing: 0.05em; box-shadow: 0 2px 5px rgba(245,158,11,0.1);">HOD</span>
+                    </div>
+
+                    <!-- HOD Info Details -->
+                    <div class="hod-details-container" style="flex: 1; min-width: 280px; display: flex; flex-direction: column; justify-content: space-between; gap: 1rem;">
+                        <div>
+                            <!-- Name & Designation -->
+                            <div class="hod-header-actions" style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 1rem;">
+                                <div>
+                                    <h2 style="font-size: 1.8rem; font-weight: 800; color: var(--text-primary); margin: 0; line-height: 1.2;">
+                                        <?= htmlspecialchars($hod['name']) ?>
+                                    </h2>
+                                    <div style="font-size: 1.05rem; color: #b45309; font-weight: 600; margin-top: 0.35rem; display: flex; align-items: center; gap: 0.35rem;">
+                                        👑 <?= htmlspecialchars($hod['designation']) ?>
+                                    </div>
+                                </div>
+                                
+                                <!-- Action Buttons -->
+                                <div style="display: flex; gap: 0.5rem; align-items: center;">
+                                    <button class="btn btn-secondary" onclick='openEditModal(<?= json_encode($hod) ?>)' style="padding: 0.5rem 1rem; font-size: 0.8rem; display: flex; align-items: center; gap: 0.4rem; border: 1px solid var(--border-color);">
+                                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: currentColor;"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"/></svg>
+                                        Edit Details
+                                    </button>
+                                    <form action="faculty.php" method="POST" style="display: inline;" onsubmit="return confirm('Remove this faculty member?');">
+                                        <input type="hidden" name="action" value="delete_faculty">
+                                        <input type="hidden" name="id" value="<?= $hod['id'] ?>">
+                                        <button type="submit" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.8rem; color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.2); background: rgba(239, 68, 68, 0.02); display: flex; align-items: center; gap: 0.4rem;">
+                                            <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: currentColor;"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+                                            Remove
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+
+                            <!-- Details Grid -->
+                            <div class="hod-details-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                                <!-- Credentials / Experience -->
+                                <div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Credentials & Experience</div>
+                                    <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem; margin-top: 0.25rem;">
+                                        <?= htmlspecialchars($hod['qualification'] ?? 'N/A') ?>
+                                    </div>
+                                    <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem; display: flex; align-items: center; gap: 0.4rem;">
+                                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: var(--text-muted);"><path d="M20 6h-4V4c0-1.11-.89-2-2-2h-4c-1.11 0-2 .89-2 2v2H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2zm-6 0h-4V4h4v2z"/></svg>
+                                        <?= htmlspecialchars($hod['experience'] ?? 'N/A') ?>
+                                    </div>
+                                </div>
+
+                                <!-- Email / Department -->
+                                <div>
+                                    <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em;">Contact & Department</div>
+                                    <div style="font-weight: 600; color: var(--text-primary); font-size: 0.95rem; margin-top: 0.25rem; word-break: break-all;">
+                                        <a href="mailto:<?= htmlspecialchars($hod['email']) ?>" style="color: var(--primary); text-decoration: none; display: flex; align-items: center; gap: 0.4rem;">
+                                            <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: currentColor;"><path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+                                            <?= htmlspecialchars($hod['email']) ?>
+                                        </a>
+                                    </div>
+                                    <div style="font-size: 0.82rem; color: var(--text-secondary); margin-top: 0.25rem;">
+                                        Dept: <?= htmlspecialchars($hod['department']) ?>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Core Expertise tags -->
+                            <div style="margin-top: 1.5rem;">
+                                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 600; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Core Expertise</div>
+                                <div class="hod-expertise-container" style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                                    <?php 
+                                    $expertise_str = $hod['expertise'] ?? '';
+                                    if (!empty($expertise_str) && $expertise_str !== '-'): 
+                                        $tags = explode(',', $expertise_str);
+                                        foreach ($tags as $tag): 
+                                            $tag = trim($tag);
+                                            if (empty($tag)) continue;
+                                            ?>
+                                            <span style="background: rgba(245,158,11,0.08); color: #92400e; border: 1px solid rgba(245,158,11,0.25); padding: 0.25rem 0.75rem; border-radius: 99px; font-size: 0.72rem; font-weight: 600; display: inline-block;">
+                                                <?= htmlspecialchars($tag) ?>
+                                            </span>
+                                        <?php endforeach; ?>
+                                    <?php else: ?>
+                                        <span style="color: var(--text-muted); font-size: 0.82rem;">N/A</span>
+                                    <?php endif; ?>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Workload details -->
+                        <div style="border-top: 1px solid var(--border-color); padding-top: 1.25rem; margin-top: 0.5rem;">
+                            <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.4rem; font-size: 0.82rem;">
+                                <span style="font-weight: 600; color: var(--text-primary); display: flex; align-items: center; gap: 0.4rem;">
+                                    <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: var(--text-muted);"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                                    Teaching Workload Load: <?= $hod['workload'] ?> hrs / week
+                                </span>
+                                <span style="font-weight: 700; color: #b45309;"><?= $workload_pct ?>%</span>
+                            </div>
+                            <div style="width: 100%; height: 8px; background-color: var(--border-color); border-radius: 99px; overflow: hidden;">
+                                <div style="width: <?= $workload_pct ?>%; height: 100%; background-color: #f59e0b; border-radius: 99px;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+
     <!-- Faculty Directory -->
     <div class="glass-card">
         <h3 class="glass-card-title" style="margin-bottom: 1.25rem;">Faculty Directory</h3>
@@ -162,14 +364,14 @@ if (!empty($selected_dept)) {
                     </tr>
                 </thead>
                 <tbody>
-                    <?php if (empty($filtered_faculty)): ?>
+                    <?php if (empty($staff_list)): ?>
                         <tr>
                             <td colspan="7" style="text-align: center; padding: 3rem 0; color: var(--text-muted);">
                                 No faculty members found.
                             </td>
                         </tr>
                     <?php else: ?>
-                        <?php foreach ($filtered_faculty as $fac): ?>
+                        <?php foreach ($staff_list as $fac): ?>
                             <?php 
                             // Determine workload percentage progress bar style
                             $workload_pct = min(100, round(($fac['workload'] / 20) * 100)); // Max ideal workload is 20 hrs
@@ -260,7 +462,7 @@ if (!empty($selected_dept)) {
                                         <?php endif; ?>
                                     </div>
                                 </td>
-                                <td style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary);"><?= htmlspecialchars($fac['email']) ?></td>
+                                <td style="font-size: 0.8rem; font-weight: 500; color: var(--text-secondary); word-break: break-all;"><?= htmlspecialchars($fac['email']) ?></td>
                                 <td>
                                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.3rem; font-size: 0.72rem;">
                                         <span style="font-weight: 600;"><?= $fac['workload'] ?> hrs / week</span>
@@ -483,6 +685,23 @@ if (!empty($selected_dept)) {
     window.addEventListener('DOMContentLoaded', (event) => {
         <?= $action_toast ?>
     });
+
+    // Add live filter search for HOD card when user types in search bar
+    const searchInput = document.getElementById('navSearchInput');
+    if (searchInput) {
+        searchInput.addEventListener('keyup', function() {
+            const query = this.value.toLowerCase();
+            const hodCards = document.querySelectorAll('.hod-card-wrapper');
+            hodCards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if (text.includes(query)) {
+                    card.style.display = '';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        });
+    }
 </script>
 
 <?php include 'footer.php'; ?>

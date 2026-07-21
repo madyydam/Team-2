@@ -1485,6 +1485,8 @@ body.dark-mode .modal-footer {
     justify-content: space-between;
     align-items: center;
     transition: var(--transition);
+    margin-top: auto; /* ← Push footer to bottom of flex column */
+    flex-shrink: 0;   /* ← Never shrink below its natural height */
 }
 
 .footer-links {

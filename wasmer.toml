@@ -1,0 +1,19 @@
+﻿[package]
+name = "madyydamtech/team2"
+version = "0.1.0"
+description = "Team 2 Academic Planning & Monitoring System"
+
+[dependencies]
+"php/php" = "8.*"
+
+[[command]]
+name = "web"
+module = "php/php:php"
+runner = "wcgi"
+
+[command.annotations.wcgi]
+dialect = "wcgi"
+
+[fs]
+"/app" = "."
+

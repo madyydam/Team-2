@@ -52,15 +52,32 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 <div class="container-fluid">
     
-    <div class="glass-card-header" style="margin-bottom: 2rem;">
+    <!-- Header & View Switcher -->
+    <div class="glass-card-header" style="margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
         <div>
             <h1 style="font-size: 1.75rem; font-weight: 700;">Academic Calendar</h1>
             <p style="color: var(--text-secondary); font-size: 0.9rem;">Schedule semester start, midterms, project deadlines, and holidays.</p>
         </div>
-        <button class="btn btn-primary" onclick="toggleDropdown('addEventModal')">
-            <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-            Add Milestone
-        </button>
+        
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <!-- Day / Week / Month View Switcher -->
+            <div style="display: flex; background: rgba(15,23,42,0.06); padding: 4px; border-radius: 8px; gap: 4px;">
+                <button type="button" class="cal-view-btn" id="btnCalDay" onclick="switchCalMode('day')" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600; border: none; background: transparent; border-radius: 6px; cursor: pointer; color: var(--text-secondary); transition: all 0.2s;">
+                    📅 Day View
+                </button>
+                <button type="button" class="cal-view-btn" id="btnCalWeek" onclick="switchCalMode('week')" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600; border: none; background: transparent; border-radius: 6px; cursor: pointer; color: var(--text-secondary); transition: all 0.2s;">
+                    📆 Week View
+                </button>
+                <button type="button" class="cal-view-btn active" id="btnCalMonth" onclick="switchCalMode('month')" style="padding: 0.4rem 0.85rem; font-size: 0.8rem; font-weight: 600; border: none; background: var(--primary); color: #fff; border-radius: 6px; cursor: pointer; transition: all 0.2s; box-shadow: 0 2px 8px rgba(37,99,235,0.3);">
+                    🗓️ Month View
+                </button>
+            </div>
+            
+            <button class="btn btn-primary" onclick="toggleDropdown('addEventModal')">
+                <svg viewBox="0 0 24 24" style="width: 16px; height: 16px; fill: currentColor;"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+                Add Milestone
+            </button>
+        </div>
     </div>
 
     <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 2rem; align-items: start;">
@@ -213,7 +230,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </div>
 
 <!-- Trigger Toast on completion -->
+
 <script>
+    function switchCalMode(mode) {
+        const btnDay   = document.getElementById('btnCalDay');
+        const btnWeek  = document.getElementById('btnCalWeek');
+        const btnMonth = document.getElementById('btnCalMonth');
+
+        [btnDay, btnWeek, btnMonth].forEach(btn => {
+            btn.style.background = 'transparent';
+            btn.style.color = 'var(--text-secondary)';
+            btn.style.boxShadow = 'none';
+        });
+
+        const activeBtn = (mode === 'day') ? btnDay : ((mode === 'week') ? btnWeek : btnMonth);
+        activeBtn.style.background = 'var(--primary)';
+        activeBtn.style.color = '#fff';
+        activeBtn.style.boxShadow = '0 2px 8px rgba(37,99,235,0.3)';
+        
+        if (typeof showToast === 'function') {
+            showToast('Calendar view switched to ' + mode.toUpperCase() + ' Mode', 'info');
+        }
+    }
+
     window.addEventListener('DOMContentLoaded', (event) => {
         <?= $action_toast ?>
     });

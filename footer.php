@@ -9,18 +9,6 @@ Footer Include - project/footer.php
 $current_page = basename($_SERVER['PHP_SELF']);
 ?>
         <?php if ($current_page != 'login.php' && $current_page != 'index.php'): ?>
-                <footer class="app-footer">
-                    <div>
-                        &copy; 2026 <strong>Team 2</strong>. Academic Planning & Monitoring System. All rights reserved.
-                    </div>
-                    <div class="footer-links">
-                        <a href="#">About</a>
-                        <a href="#">Support</a>
-                        <a href="#">Privacy Policy</a>
-                        <span style="color: var(--text-muted);">|</span>
-                        <span>Version 2.1.0-Stable</span>
-                    </div>
-                </footer>
             </div> <!-- End main-content -->
         <?php endif; ?>
     </div> <!-- End app-container -->

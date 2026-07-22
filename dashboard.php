@@ -125,62 +125,120 @@ $stroke_dashoffset = 226 - ($semester_progress / 100) * 226;
         </div>
     </div>
 
-    <!-- Quick Stats Cards Grid -->
-    <div class="stats-grid">
-        <!-- Stats Card 1 -->
-        <div class="glass-card stat-card">
-            <div class="stat-icon-wrapper stat-blue">
-                <svg viewBox="0 0 24 24"><path d="M5 4h14v2H5V4zm0 5h14v2H5V9zm0 5h14v2H5v-2zm0 5h14v2H5v-2z"/></svg>
-            </div>
+    <!-- SRS Feature 10: HOD Academic Monitoring Dashboard — Live Stats -->
+    <div class="glass-card" style="margin-bottom: 1.75rem; padding: 1.5rem 1.75rem;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.25rem; flex-wrap: wrap; gap: 0.75rem;">
             <div>
-                <div class="stat-value"><?= $total_classes ?></div>
-                <div class="stat-label">Scheduled Classes</div>
+                <h3 class="glass-card-title" style="margin: 0; font-size: 1.15rem; display: flex; align-items: center; gap: 0.5rem;">
+                    <span>📊 Academic Monitoring Dashboard</span>
+                    <span style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted);">(Real-Time)</span>
+                </h3>
+            </div>
+            <div style="display: flex; gap: 1rem; align-items: center; flex-wrap: wrap;">
+                <div style="display: flex; gap: 0.75rem; font-size: 0.75rem; font-weight: 600;">
+                    <span style="color: #10b981;">🟢 Normal</span>
+                    <span style="color: #f59e0b;">🟡 Attention</span>
+                    <span style="color: #ef4444;">🔴 Critical</span>
+                </div>
+                <a href="daily_monitoring.php" style="font-size: .75rem; color: var(--primary); font-weight: 700;">Full Monitor →</a>
             </div>
         </div>
-        
-        <!-- Stats Card 2 -->
-        <div class="glass-card stat-card">
-            <div class="stat-icon-wrapper stat-green">
-                <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+
+        <?php
+        // Get live data from session conditional on semester status
+        $cs_list = $db['class_sessions'] ?? [];
+        if ($is_semester_active) {
+            $cs_total   = count($cs_list);
+            $cs_done    = count(array_filter($cs_list, fn($c)=>$c['status']==='Conducted' || $c['status']==='Completed'));
+            $cs_pend    = count(array_filter($cs_list, fn($c)=>$c['status']==='Not Conducted' || $c['status']==='Pending'));
+            $cs_cancel  = count(array_filter($cs_list, fn($c)=>$c['status']==='Cancelled'));
+            $fac_total  = count($db['faculty']);
+            $fac_pres   = count(array_filter($db['faculty'], fn($f)=>($f['status']??'Active')==='Active'));
+            $stu_total  = count($db['students']);
+            $stu_sum    = 0; $low_att_ct = 0;
+            foreach ($db['students'] as $s) { $a=$s['attendance_pct']??80; $stu_sum+=$a; if($a<75)$low_att_ct++; }
+            $stu_avg    = $stu_total>0 ? round($stu_sum/$stu_total,1) : 0;
+            $att_pct    = $cs_total>0 ? min(100,round(($cs_done/$cs_total)*100)) : 0;
+            $lab_total  = count($db['labs']);
+            $lab_done   = count(array_filter($db['labs'], fn($l)=>$l['status']==='Conducted'));
+            $issue_ct   = count(array_filter($db['issues']??[], fn($i)=>$i['status']==='Pending'));
+        } else {
+            // Semester NOT STARTED / ENDED -> All execution stats must be 0
+            $cs_total   = 0;
+            $cs_done    = 0;
+            $cs_pend    = 0;
+            $cs_cancel  = 0;
+            $fac_total  = 0;
+            $fac_pres   = 0;
+            $att_pct    = 0;
+            $lab_total  = 0;
+            $lab_done   = 0;
+            $issue_ct   = 0;
+            $low_att_ct = 0;
+        }
+
+        function d_color($v,$g,$y){return $v>=$g?'#10b981':($v>=$y?'#f59e0b':'#ef4444');}
+        function d_icon($v,$g,$y){return $v>=$g?'🟢':($v>=$y?'🟡':'🔴');}
+        function d_color_inv($v,$ok,$bad){return $v<=$ok?'#10b981':($v<=$bad?'#f59e0b':'#ef4444');}
+        function d_icon_inv($v,$ok,$bad){return $v<=$ok?'🟢':($v<=$bad?'🟡':'🔴');}
+
+        if ($is_semester_active) {
+            $grid = [
+                ['Today\'s Classes', $cs_total, 'var(--primary)', '🟢 Normal', ''],
+                ['Completed', $cs_done, d_color($cs_done,max(1,$cs_total*.9),max(1,$cs_total*.7)), d_icon($cs_done,max(1,$cs_total*.9),max(1,$cs_total*.7)).' Normal', ''],
+                ['Pending', $cs_pend, d_color_inv($cs_pend,1,3), d_icon_inv($cs_pend,1,3).' '.($cs_pend<=1?'Normal':'Attention'), ''],
+                ['Attendance', $att_pct.'%', d_color($att_pct,90,75), d_icon($att_pct,90,75).' '.($att_pct>=90?'Normal':($att_pct>=75?'Attention':'Critical')), ''],
+                ['Faculty Present', $fac_pres.'/'.$fac_total, d_color($fac_pres,$fac_total*.93,$fac_total*.8), d_icon($fac_pres,$fac_total*.93,$fac_total*.8).' '.($fac_pres>=$fac_total*.93?'Normal':'Attention'), ''],
+                ['Labs Completed', $lab_done.'/'.$lab_total, d_color($lab_done,$lab_total,$lab_total*.7), d_icon($lab_done,$lab_total,$lab_total*.7).' Normal', ''],
+                ['Infra Issues', $issue_ct, d_color_inv($issue_ct,0,2), d_icon_inv($issue_ct,0,2).' '.($issue_ct===0?'Normal':($issue_ct<=2?'Attention':'Critical')), ''],
+                ['Low Att. Students', $low_att_ct, d_color_inv($low_att_ct,0,3), d_icon_inv($low_att_ct,0,3).' '.($low_att_ct===0?'Normal':'Attention'), ''],
+            ];
+        } else {
+            $grid = [
+                ['Today\'s Classes', 0, 'var(--text-muted)', '⚪ Not Started', ''],
+                ['Completed', 0, 'var(--text-muted)', '⚪ Not Started', ''],
+                ['Pending', 0, 'var(--text-muted)', '⚪ Not Started', ''],
+                ['Attendance', '0%', 'var(--text-muted)', '⚪ Not Started', ''],
+                ['Faculty Present', '0/0', 'var(--text-muted)', '⚪ Not Started', ''],
+                ['Labs Completed', '0/0', 'var(--text-muted)', '⚪ Not Started', ''],
+                ['Infra Issues', 0, 'var(--text-muted)', '⚪ Not Started', ''],
+                ['Low Att. Students', 0, 'var(--text-muted)', '⚪ Not Started', ''],
+            ];
+        }
+        ?>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(125px, 1fr)); gap: 0.85rem;">
+            <?php foreach ($grid as [$label, $value, $color, $badge, $link]): ?>
+            <div style="background: var(--glass-bg); border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 0.85rem 1rem; text-align: center; border-top: 3px solid <?= $color ?>;">
+                <div style="font-size: 0.68rem; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;"><?= $label ?></div>
+                <div style="font-size: 1.5rem; font-weight: 800; color: <?= $color ?>; margin-top: 0.2rem;"><?= $value ?></div>
+                <span style="font-size: 0.62rem; color: <?= $color ?>; font-weight: 700;"><?= $badge ?></span>
             </div>
-            <div>
-                <div class="stat-value"><?= $is_semester_active ? "$faculty_present / $total_faculty" : "0 / 0" ?></div>
-                <div class="stat-label">Faculty Present</div>
+            <?php endforeach; ?>
+        </div>
+
+        <?php
+        // Recent Alerts bar at bottom of this card
+        $alerts = [];
+        if ($is_semester_active) {
+            foreach ($cs_list as $cs) {
+                if ($cs['status'] === 'Cancelled') $alerts[] = "⚠ {$cs['subject']} Class Cancelled".($cs['reason']?' — '.$cs['reason']:'');
+                if ($cs['status'] === 'Not Conducted') $alerts[] = "⏳ {$cs['subject']} — Pending at {$cs['time']}";
+            }
+        }
+        foreach ($db['issues']??[] as $iss) { if ($iss['status']==='Pending') $alerts[] = "⚠ {$iss['type']} Issue — {$iss['room']}"; }
+        if (!empty($alerts)): ?>
+        <div style="margin-top: 1.25rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+            <div style="font-size: 0.72rem; font-weight: 700; color: var(--text-muted); margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: .04em;">Recent Alerts</div>
+            <div style="display: flex; flex-wrap: wrap; gap: 0.4rem;">
+                <?php foreach (array_slice($alerts, 0, 4) as $al): ?>
+                <span style="background: rgba(239,68,68,.08); border: 1px solid rgba(239,68,68,.2); color: #dc2626; font-size: 0.72rem; font-weight: 600; padding: 0.25rem 0.65rem; border-radius: 99px;"><?= htmlspecialchars($al) ?></span>
+                <?php endforeach; ?>
+                <?php if (count($alerts) > 4): ?>
+                <a href="notifications.php" style="font-size: 0.72rem; font-weight: 600; color: var(--primary); padding: 0.25rem 0.65rem; border: 1px solid rgba(37,99,235,.3); border-radius: 99px;">+<?= count($alerts)-4 ?> more →</a>
+                <?php endif; ?>
             </div>
         </div>
-        
-        <!-- Stats Card 3 -->
-        <div class="glass-card stat-card">
-            <div class="stat-icon-wrapper stat-purple">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 14H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V7h10v2z"/></svg>
-            </div>
-            <div>
-                <div class="stat-value"><?= $avg_attendance ?>%</div>
-                <div class="stat-label">Avg Attendance</div>
-            </div>
-        </div>
-        
-        <!-- Stats Card 4 -->
-        <div class="glass-card stat-card">
-            <div class="stat-icon-wrapper stat-orange">
-                <svg viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H5v-2h4V7h2v4h4v2z"/></svg>
-            </div>
-            <div>
-                <div class="stat-value"><?= $is_semester_active ? "$labs_running / " . count($db['labs']) : "0 / 0" ?></div>
-                <div class="stat-label">Labs Conducted</div>
-            </div>
-        </div>
-        
-        <!-- Stats Card 5 -->
-        <div class="glass-card stat-card">
-            <div class="stat-icon-wrapper stat-red">
-                <svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/></svg>
-            </div>
-            <div>
-                <div class="stat-value"><?= $pending_issues ?></div>
-                <div class="stat-label">Pending Issues</div>
-            </div>
-        </div>
+        <?php endif; ?>
     </div>
 
     <!-- Charts & Action Section Grid -->
@@ -246,53 +304,48 @@ $stroke_dashoffset = 226 - ($semester_progress / 100) * 226;
             </svg>
         </div>
         
-        <!-- Quick Actions Panel -->
-        <div class="glass-card" style="display: flex; flex-direction: column; justify-content: space-between;">
-            <div class="glass-card-header" style="margin-bottom: 1rem;">
-                <h3 class="glass-card-title">Console Actions</h3>
+        <!-- Semester Status Card (SRS Feature 1) -->
+        <div class="glass-card" style="padding: 1.5rem; display: flex; flex-direction: column; justify-content: space-between; min-height: 250px;">
+            <div class="glass-card-header" style="margin-bottom: 0.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--border-color);">
+                <h3 class="glass-card-title" style="font-size: 1.1rem; display: flex; align-items: center; gap: 0.4rem;">
+                    <span>📅 Semester Status</span>
+                </h3>
             </div>
             
-            <div class="actions-grid">
-                <!-- Semester activation toggle -->
+            <div style="font-size: 0.85rem; margin-bottom: 0.75rem;">
+                <span style="color: var(--text-secondary); font-weight: 600;">Semester :</span> 
+                <span style="font-weight: 700; color: var(--primary);">Odd 2026-27</span>
+            </div>
+            
+            <div style="margin-bottom: 1.25rem;">
+                <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">Planning Status</div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; font-size: 0.8rem; font-weight: 600; color: var(--text-primary);">
+                    <div style="display: flex; align-items: center; gap: 0.3rem;"><span style="color: #10b981;">✔</span> Academic Calendar</div>
+                    <div style="display: flex; align-items: center; gap: 0.3rem;"><span style="color: #10b981;">✔</span> Subject Allocation</div>
+                    <div style="display: flex; align-items: center; gap: 0.3rem;"><span style="color: #10b981;">✔</span> Course Planning</div>
+                    <div style="display: flex; align-items: center; gap: 0.3rem;"><span style="color: #10b981;">✔</span> Timetable</div>
+                    <div style="display: flex; align-items: center; gap: 0.3rem; grid-column: span 2;"><span style="color: #10b981;">✔</span> Infrastructure</div>
+                </div>
+            </div>
+
+            <div>
                 <?php if ($db['semester_active']): ?>
                     <form action="dashboard.php" method="POST">
                         <input type="hidden" name="action" value="toggle_semester">
-                        <button type="submit" class="btn btn-danger" style="width: 100%; height: 90px; flex-direction: column; gap: 0.35rem; border-radius: var(--radius-md);">
-                            <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: currentColor;">
-                                <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/>
-                            </svg>
-                            <span>End Semester</span>
+                        <button type="submit" class="btn btn-danger" style="width: 100%; padding: 0.75rem; font-weight: 700; font-size: 0.85rem;">
+                            End Semester
                         </button>
                     </form>
                 <?php else: ?>
-                    <button type="button" class="btn btn-accent" onclick="document.getElementById('startSemesterModal').classList.add('active')" style="width: 100%; height: 90px; flex-direction: column; gap: 0.35rem; border-radius: var(--radius-md);">
-                        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: currentColor;">
-                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 14.5v-9l6 4.5-6 4.5z"/>
-                        </svg>
-                        <span>Start Semester</span>
-                    </button>
+                    <form action="dashboard.php" method="POST">
+                        <input type="hidden" name="action" value="toggle_semester">
+                        <input type="hidden" name="academic_year" value="AY 2026-27">
+                        <input type="hidden" name="semester_name" value="Semester 1">
+                        <button type="submit" class="btn btn-accent" style="width: 100%; padding: 0.75rem; font-weight: 700; font-size: 0.85rem; background: var(--primary); color: white;">
+                            Start Semester
+                        </button>
+                    </form>
                 <?php endif; ?>
-                
-                <a href="reports.php" class="btn btn-primary" style="height: 90px; flex-direction: column; gap: 0.35rem; border-radius: var(--radius-md);">
-                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: currentColor;">
-                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-2 14H7v-2h10v2zm0-4H7v-2h10v2zm0-4H7V7h10v2z"/>
-                    </svg>
-                    <span>Generate Report</span>
-                </a>
-                
-                <a href="faculty.php" class="btn btn-secondary" style="height: 90px; flex-direction: column; gap: 0.35rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: currentColor;">
-                        <path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/>
-                    </svg>
-                    <span>Assign Subjects</span>
-                </a>
-                
-                <a href="timetable.php" class="btn btn-secondary" style="height: 90px; flex-direction: column; gap: 0.35rem; border-radius: var(--radius-md); border: 1px solid var(--border-color);">
-                    <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: currentColor;">
-                        <path d="M19 4H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V8h14v12zm0-14H5V6h14v2z"/>
-                    </svg>
-                    <span>View Timetable</span>
-                </a>
             </div>
         </div>
     </div>
@@ -320,7 +373,7 @@ $stroke_dashoffset = 226 - ($semester_progress / 100) * 226;
                 // July 2026 details (Mocking current view of dashboard)
                 $year = 2026;
                 $month = 7;
-                $today_day = 15; // Active highlighted day
+                $today_day = 22; // Today's date highlighted (July 22, 2026)
                 $first_day_of_week = 3; // Wednesday (1=Mon, 2=Tue, 3=Wed, ...)
                 $blank_cells = $first_day_of_week - 1; // 2 blank cells
                 $days_in_month = 31;
@@ -432,9 +485,13 @@ $stroke_dashoffset = 226 - ($semester_progress / 100) * 226;
                 <select id="miniTimetableSemFilter" onchange="filterMiniTimetable()" style="width: auto; padding: 0.4rem 1.75rem 0.4rem 0.75rem; font-size: 0.75rem; font-weight: 600; border-radius: 6px; border: 1px solid var(--border-color); background: var(--glass-bg); color: var(--text-primary); cursor: pointer; min-width: 140px;">
                     <option value="all">All Semesters</option>
                     <option value="1st">1st Semester</option>
+                    <option value="2nd">2nd Semester</option>
                     <option value="3rd">3rd Semester</option>
+                    <option value="4th">4th Semester</option>
                     <option value="5th" selected>5th Semester</option>
+                    <option value="6th">6th Semester</option>
                     <option value="7th">7th Semester</option>
+                    <option value="8th">8th Semester</option>
                 </select>
                 
                 <a href="timetable.php" class="btn btn-secondary" style="padding: 0.4rem 0.75rem; font-size: 0.75rem; display: flex; align-items: center; gap: 0.25rem; font-weight: 600; border: 1px solid var(--border-color);">

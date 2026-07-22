@@ -519,9 +519,13 @@ $slots = [
                         <label class="form-label">Semester</label>
                         <select class="form-control" name="semester">
                             <option value="1st">1st Sem</option>
+                            <option value="2nd">2nd Sem</option>
                             <option value="3rd">3rd Sem</option>
+                            <option value="4th">4th Sem</option>
                             <option value="5th" selected>5th Sem</option>
+                            <option value="6th">6th Sem</option>
                             <option value="7th">7th Sem</option>
+                            <option value="8th">8th Sem</option>
                         </select>
                     </div>
                 </div>

@@ -43,14 +43,66 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
     if (empty($username) || empty($password)) {
         $error_msg = 'Please enter both username and password.';
     } else {
-        // Check admin users first
-        $found_user = null;
-        if (array_key_exists($username, $admin_users) && $admin_users[$username]['password'] === $password) {
-            $found_user = $admin_users[$username];
+        // 1. Attempt DB authentication
+        $db_host = 'localhost';
+        $db_user = 'root';
+        $db_pass = '';
+        $db_name = 'academic_monitoring_db';
+        $conn = null;
+        try {
+            $conn = new mysqli($db_host, $db_user, $db_pass, $db_name);
+            if (!$conn->connect_error) {
+                $conn->set_charset('utf8mb4');
+            } else {
+                $conn = null;
+            }
+        } catch (Exception $e) {
+            $conn = null;
         }
-        // Check registered users
-        elseif (isset($_SESSION['registered_users'][$username]) && $_SESSION['registered_users'][$username]['password'] === $password) {
-            $found_user = $_SESSION['registered_users'][$username];
+
+        if ($conn) {
+            $alias_map = [
+                'admin'   => 'admin@team2.edu',
+                'hod'     => 'hod@team2.edu',
+                'faculty' => 'neeti.rathore@zealeducation.com',
+            ];
+            $lookup_email = $alias_map[$username] ?? $username;
+            
+            $stmt = $conn->prepare("
+                SELECT u.name, u.password, r.name AS role_name 
+                FROM users u 
+                LEFT JOIN roles r ON u.role_id = r.id 
+                WHERE u.email = ? OR u.email LIKE ? 
+                LIMIT 1
+            ");
+            if ($stmt) {
+                $like_pattern = $username . '@%';
+                $stmt->bind_param('ss', $lookup_email, $like_pattern);
+                $stmt->execute();
+                $result = $stmt->get_result();
+                if ($row = $result->fetch_assoc()) {
+                    if (password_verify($password, $row['password']) || $row['password'] === $password) {
+                        $found_user = [
+                            'name' => $row['name'],
+                            'role' => ($row['role_name'] === 'Admin') ? 'Administrator' : (($row['role_name'] === 'HOD') ? 'Head of Department' : (($row['role_name'] === 'Faculty') ? 'Faculty Member' : $row['role_name']))
+                        ];
+                    }
+                }
+                $stmt->close();
+            }
+            $conn->close();
+        }
+
+        // 2. Fallback: Check password overrides (from Forgot Password reset)
+        if (!$found_user) {
+            $expected_pass = $_SESSION['admin_password_overrides'][$username] ?? $admin_users[$username]['password'] ?? null;
+            if (array_key_exists($username, $admin_users) && $expected_pass === $password) {
+                $found_user = $admin_users[$username];
+            }
+            // Check registered users in session
+            elseif (isset($_SESSION['registered_users'][$username]) && $_SESSION['registered_users'][$username]['password'] === $password) {
+                $found_user = $_SESSION['registered_users'][$username];
+            }
         }
 
         if ($found_user) {
@@ -485,8 +537,7 @@ $reg_user_data = $_SESSION['reg_data'] ?? null;
                             <input type="checkbox" name="remember" checked>
                             <span>Remember Me</span>
                         </label>
-                        <a class="forgot-password" href="#"
-                            onclick="showToast('Contact your administrator to reset your password.','info'); return false;">
+                        <a class="forgot-password" href="forgot_password.php">
                             Forgot Password?
                         </a>
                     </div>

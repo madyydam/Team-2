@@ -13,9 +13,31 @@ $user   = 'root';
 $pass   = '';
 $dbname = 'academic_monitoring_db';
 
-$conn = new mysqli($host, $user, $pass);
+mysqli_report(MYSQLI_REPORT_OFF);
+$conn = @new mysqli($host, $user, $pass);
 if ($conn->connect_error) {
-    die("<h2 style='color:red'>DB Connection Failed: " . $conn->connect_error . "</h2>");
+    echo "
+    <div style='font-family:system-ui, -apple-system, sans-serif; padding:2rem; background:#fef2f2; border:1px solid #fecaca; border-radius:12px; max-width:650px; margin:3rem auto; color:#991b1b; box-shadow:0 10px 25px rgba(0,0,0,0.05);'>
+        <h2 style='margin-top:0; color:#991b1b; display:flex; align-items:center; gap:0.5rem;'>
+            <span>⚠️ MySQL Connection Warning</span>
+        </h2>
+        <p style='font-size:0.95rem; line-height:1.5;'>
+            Could not connect to MySQL at <code>localhost:3306</code>. The local MySQL server is currently turned off or not running.
+        </p>
+        <div style='background:white; border:1px solid #fca5a5; padding:1rem; border-radius:8px; margin:1rem 0; font-size:0.85rem; color:#7f1d1d;'>
+            <strong>Error Details:</strong> " . htmlspecialchars($conn->connect_error) . "
+        </div>
+        <h3 style='font-size:0.9rem; color:#7f1d1d; margin-bottom:0.5rem;'>To initialize the MySQL Database:</h3>
+        <ol style='font-size:0.88rem; line-height:1.6; margin-top:0; padding-left:1.2rem; color:#7f1d1d;'>
+            <li>Open <strong>XAMPP Control Panel</strong> (or WAMP Server).</li>
+            <li>Click the <strong>Start</strong> button next to <strong>MySQL</strong>.</li>
+            <li>Refresh this page (<code>F5</code>) to seed all tables!</li>
+        </ol>
+        <p style='font-size:0.8rem; color:#6b7280; margin-bottom:0; border-top:1px solid #fecaca; padding-top:0.75rem;'>
+            💡 <em>Note: Your web app also features a full active session fallback database, so all features run smoothly even while MySQL is offline!</em>
+        </p>
+    </div>";
+    exit;
 }
 $conn->query("CREATE DATABASE IF NOT EXISTS `$dbname` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci");
 $conn->select_db($dbname);

@@ -222,9 +222,13 @@ if (!empty($selected_dept)) {
                         <label class="form-label">Semester</label>
                         <select class="form-control" name="semester">
                             <option value="1st">1st Semester</option>
+                            <option value="2nd">2nd Semester</option>
                             <option value="3rd">3rd Semester</option>
+                            <option value="4th">4th Semester</option>
                             <option value="5th" selected>5th Semester</option>
+                            <option value="6th">6th Semester</option>
                             <option value="7th">7th Semester</option>
+                            <option value="8th">8th Semester</option>
                         </select>
                     </div>
                     <div class="form-group">

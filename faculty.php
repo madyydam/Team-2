@@ -78,6 +78,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 break;
             }
         }
+        unset($fac);
         
         if ($updated) {
             $action_toast = "showToast('Faculty record updated successfully.', 'success');";

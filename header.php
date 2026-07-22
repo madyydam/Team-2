@@ -299,6 +299,13 @@ if (!isset($_SESSION['academic_db']) || ($_SESSION['db_version'] ?? '') !== DB_V
             ['id' => 5, 'subject' => 'EC501', 'faculty_id' => 6, 'room' => 'Room 304', 'time_slot' => '09:00 AM - 10:00 AM', 'day_of_week' => 'Thursday', 'department' => 'Information Technology', 'semester' => '1st'],
         ],
         
+        'classrooms' => [
+            ['id' => 1, 'room' => 'Room 301', 'projector' => 'Working', 'internet' => 'Working', 'whiteboard' => 'Available', 'capacity' => 60, 'status' => 'Available'],
+            ['id' => 2, 'room' => 'Room 302', 'projector' => 'Working', 'internet' => 'Working', 'whiteboard' => 'Available', 'capacity' => 60, 'status' => 'Available'],
+            ['id' => 3, 'room' => 'Room 303', 'projector' => 'Under Maintenance', 'internet' => 'Working', 'whiteboard' => 'Available', 'capacity' => 60, 'status' => 'Maintenance Requested'],
+            ['id' => 4, 'room' => 'Room 304', 'projector' => 'Working', 'internet' => 'Not Working', 'whiteboard' => 'Available', 'capacity' => 60, 'status' => 'Maintenance Requested'],
+        ],
+        
         'labs' => [
             ['id' => 1, 'name' => 'Programming Lab 1', 'status' => 'Conducted', 'systems_working' => 58, 'total_systems' => 60, 'network_status' => 'Excellent', 'equipment_status' => 'Good'],
             ['id' => 2, 'name' => 'Data Science Lab', 'status' => 'Conducted', 'systems_working' => 45, 'total_systems' => 50, 'network_status' => 'Excellent', 'equipment_status' => 'Good'],
@@ -317,6 +324,37 @@ if (!isset($_SESSION['academic_db']) || ($_SESSION['db_version'] ?? '') !== DB_V
             ['id' => 3, 'title' => 'Network maintenance notice in block B', 'time' => '2 days ago', 'type' => 'warning'],
         ],
     ];
+}
+
+// ---------------------------------------------------------
+// HELPER FUNCTIONS (Shared across pages)
+// ---------------------------------------------------------
+if (!function_exists('resolveSessionStatus')) {
+    function resolveSessionStatus($subCode, $db) {
+        $hash = crc32($subCode);
+        $val = abs($hash) % 10;
+        if ($val < 6) return 'Completed';
+        if ($val < 8) return 'Pending';
+        return 'Cancelled';
+    }
+}
+
+if (!function_exists('resolveFacName')) {
+    function resolveFacName($id, $list) {
+        foreach ($list as $f) {
+            if (isset($f['id']) && $f['id'] == $id) return $f['name'];
+        }
+        return 'Unknown Faculty';
+    }
+}
+
+if (!function_exists('resolveSubName')) {
+    function resolveSubName($code, $list) {
+        foreach ($list as $s) {
+            if (isset($s['code']) && $s['code'] == $code) return $s['name'];
+        }
+        return $code;
+    }
 }
 
 // ---------------------------------------------------------

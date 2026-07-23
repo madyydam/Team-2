@@ -71,7 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && ($_POST['action'] ?? '') === 'login
             $stmt = $conn->prepare("
                 SELECT u.name, u.password, r.name AS role_name 
                 FROM users u 
-                LEFT JOIN roles r ON u.role_id = r.id 
+                LEFT JOIN roles r ON u.role_id = r.role_id 
                 WHERE u.email = ? OR u.email LIKE ? 
                 LIMIT 1
             ");
